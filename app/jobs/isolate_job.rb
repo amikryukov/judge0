@@ -34,7 +34,7 @@ class IsolateJob < ApplicationJob
       time << submission.time
       memory << submission.memory
 
-      cleanup
+      #foo cleanup
       break if submission.status != Status.ac
     end
 
@@ -45,7 +45,7 @@ class IsolateJob < ApplicationJob
   rescue Exception => e
     raise e.message unless submission
     submission.update(message: e.message, status: Status.boxerr, finished_at: DateTime.now)
-    cleanup(raise_exception = false)
+    #foo cleanup(raise_exception = false)
   ensure
     call_callback
   end
@@ -259,7 +259,7 @@ class IsolateJob < ApplicationJob
 
     `#{command}`
 
-    `sudo rm #{run_script}` unless submission.is_project
+    #foo `sudo rm #{run_script}` unless submission.is_project
   end
 
   def verify
@@ -313,8 +313,8 @@ class IsolateJob < ApplicationJob
   end
 
   def reset_metadata_file
-    `sudo rm -rf #{metadata_file}`
-    initialize_file(metadata_file)
+    #foo `sudo rm -rf #{metadata_file}`
+    #foo initialize_file(metadata_file)
   end
 
   def fix_permissions
