@@ -114,7 +114,7 @@ class IsolateJob < ApplicationJob
 
     `#{command}`
 
-    File.delete(additional_files_archive_file)
+    # File.delete(additional_files_archive_file)
 
     puts "extract_archive #{submission.id} success"
   end
