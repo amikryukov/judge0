@@ -101,11 +101,11 @@ class IsolateJob < ApplicationJob
     -x 1 \
     -w 4 \
     -k #{Config::MAX_STACK_LIMIT} \
-    -p #{Config::MAX_MAX_PROCESSES_AND_OR_THREADS} \
+    -p#{Config::MAX_MAX_PROCESSES_AND_OR_THREADS} \
     #{submission.enable_per_process_and_thread_memory_limit ? "-m " : "--cg-mem="}#{Config::MAX_MEMORY_LIMIT} \
     -f #{Config::MAX_EXTRACT_SIZE} \
     --run \
-    -- /usr/bin/unzip -n -qq #{additional_files_archive_file} \
+    -- /usr/bin/unzip -n -qq #{ADDITIONAL_FILES_ARCHIVE_FILE_NAME} \
     "
 
     puts "[#{DateTime.now}] Extracting archive for submission #{submission.token} (#{submission.id}):"
