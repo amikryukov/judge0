@@ -1,0 +1,51 @@
+version: "3"
+services:
+  server:
+    image: amikriukov/judge0:latest
+    # image: judge0/judge0:1.13.1
+    command: [ "./scripts/server" ]
+    volumes:
+      - ./judge0-amikriukov.conf:/judge0.conf:ro
+    ports:
+      - "3000:2358"
+    privileged: true
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+
+  worker:
+    image: amikriukov/judge0:latest
+    # image: judge0/judge0:1.13.1
+    command: [ "./scripts/workers" ]
+    volumes:
+      - ./judge0-amikriukov.conf:/judge0.conf:ro
+    environment:
+      # Enable cgroup v2
+      ENV CGROUP_V2_ENABLED: true
+    privileged: true
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:9.6
+    env_file: judge0-amikriukov.conf
+    volumes:
+      - ./judge0_data/postgres-data:/var/lib/postgresql/data/
+    restart: always
+
+  redis:
+    image: redis:4.0
+    command: [
+      "bash", "-c",
+      'docker-entrypoint.sh --appendonly yes --requirepass "$$REDIS_PASSWORD"'
+    ]
+    env_file: judge0-amikriukov.conf
+    volumes:
+      - ./judge0_data/redis-data:/data
+    restart: always
+    depends_on:
+      - db
