@@ -21,6 +21,7 @@ services:
     command: [ "./scripts/workers" ]
     volumes:
       - ./judge0-amikriukov.conf:/judge0.conf:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     environment:
       # Enable cgroup v2
       ENV CGROUP_V2_ENABLED: true
