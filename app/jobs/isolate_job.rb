@@ -105,7 +105,7 @@ class IsolateJob < ApplicationJob
     #{submission.enable_per_process_and_thread_memory_limit ? "-m " : "--cg-mem="}#{Config::MAX_MEMORY_LIMIT} \
     -f #{Config::MAX_EXTRACT_SIZE} \
     --run \
-    -- /usr/bin/unzip -n -qq #{ADDITIONAL_FILES_ARCHIVE_FILE_NAME} \
+    -- /usr/bin/unzip -n -qq #{additional_files_archive_file} \
     "
 
     puts "[#{DateTime.now}] Extracting archive for submission #{submission.token} (#{submission.id}):"
