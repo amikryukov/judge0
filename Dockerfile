@@ -67,6 +67,9 @@ RUN mkdir -p /api/log && \
 # Enable cgroup v2
 ENV CGROUP_V2_ENABLED=true
 
+# Set isolate to use a specific sandbox directory, if desired
+RUN mkdir -p /var/local/lib/isolate && chmod 777 /var/local/lib/isolate
+
 USER judge0
 
 ENV JUDGE0_VERSION "1.13.1"

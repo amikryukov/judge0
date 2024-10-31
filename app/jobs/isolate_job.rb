@@ -92,6 +92,7 @@ class IsolateJob < ApplicationJob
 
     File.open(additional_files_archive_file, "wb") { |f| f.write(submission.additional_files) }
 
+    # --cg-timing removed in master https://github.com/ioi/isolate/issues/52
     command = "isolate #{cgroups} \
     -s \
     -b #{box_id} \
@@ -100,8 +101,7 @@ class IsolateJob < ApplicationJob
     -x 1 \
     -w 4 \
     -k #{Config::MAX_STACK_LIMIT} \
-    -p#{Config::MAX_MAX_PROCESSES_AND_OR_THREADS} \
-    #{submission.enable_per_process_and_thread_time_limit ? (cgroups.present? ? "--no-cg-timing" : "") : "--cg-timing"} \
+    -p #{Config::MAX_MAX_PROCESSES_AND_OR_THREADS} \
     #{submission.enable_per_process_and_thread_memory_limit ? "-m " : "--cg-mem="}#{Config::MAX_MEMORY_LIMIT} \
     -f #{Config::MAX_EXTRACT_SIZE} \
     --run \
@@ -149,6 +149,7 @@ class IsolateJob < ApplicationJob
     compile_output_file = workdir + "/" + "compile_output.txt"
     initialize_file(compile_output_file)
 
+    # --cg-timing removed in master https://github.com/ioi/isolate/issues/52
     command = "isolate #{cgroups} \
     -s \
     -b #{box_id} \
@@ -160,7 +161,6 @@ class IsolateJob < ApplicationJob
     -w #{Config::MAX_WALL_TIME_LIMIT} \
     -k #{Config::MAX_STACK_LIMIT} \
     -p#{Config::MAX_MAX_PROCESSES_AND_OR_THREADS} \
-    #{submission.enable_per_process_and_thread_time_limit ? (cgroups.present? ? "--no-cg-timing" : "") : "--cg-timing"} \
     #{submission.enable_per_process_and_thread_memory_limit ? "-m " : "--cg-mem="}#{Config::MAX_MEMORY_LIMIT} \
     -f #{Config::MAX_MAX_FILE_SIZE} \
     -E HOME=/tmp \
@@ -230,6 +230,7 @@ class IsolateJob < ApplicationJob
       File.open(run_script, "w") { |f| f.write("#{submission.language.run_cmd} #{command_line_arguments}")}
     end
 
+    # --cg-timing removed in master https://github.com/ioi/isolate/issues/52
     command = "isolate #{cgroups} \
     -s \
     -b #{box_id} \
@@ -241,7 +242,6 @@ class IsolateJob < ApplicationJob
     -w #{submission.wall_time_limit} \
     -k #{submission.stack_limit} \
     -p#{submission.max_processes_and_or_threads} \
-    #{submission.enable_per_process_and_thread_time_limit ? (cgroups.present? ? "--no-cg-timing" : "") : "--cg-timing"} \
     #{submission.enable_per_process_and_thread_memory_limit ? "-m " : "--cg-mem="}#{submission.memory_limit} \
     -f #{submission.max_file_size} \
     -E HOME=/tmp \
