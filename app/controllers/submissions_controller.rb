@@ -102,8 +102,6 @@ class SubmissionsController < ApplicationController
   def create
     submission = Submission.new(submission_params(params))
 
-    puts "creating a new submission"
-
     if submission.save
       if @wait
         begin

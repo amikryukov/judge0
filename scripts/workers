@@ -4,9 +4,6 @@
 # Usage: ./scripts/workers
 #
 
-# hack for isolate
-sudo /opt/isolate/isolate-cg-keeper
-
 source ./scripts/load-config
 export | sudo tee /api/environment
 

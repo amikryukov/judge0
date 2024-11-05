@@ -1,5 +1,5 @@
 module IsolateRunner
-  MAX_WAIT_TIME_S = 10
+  MAX_WAIT_TIME_S = 20
 
   INITIAL_WAIT_TIME_S = 2
   NEXT_WAIT_TIME_S = 1
@@ -8,7 +8,6 @@ module IsolateRunner
   WAITING_STATUSES = [Status.queue.id, Status.process.id, nil]
 
   def self.perform_now(submission)
-    puts "perform_now"
     IsolateRunner.perform_later(submission)
 
     submission_id = submission.id
@@ -25,7 +24,6 @@ module IsolateRunner
         wait_time = WAIT_TIME_FACTOR_S * i
       end
 
-      puts "going to sleep for #{wait_time}"
       sleep(wait_time)
 
       total_wait_time += wait_time
@@ -35,7 +33,6 @@ module IsolateRunner
   end
 
   def self.perform_later(submission)
-    puts "perform_later #{submission.id}"
     submission.update(status: Status.queue, queued_at: DateTime.now, queue_host: ENV["HOSTNAME"])
     IsolateJob.perform_later(submission.id)
   end

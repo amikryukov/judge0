@@ -15,7 +15,6 @@ class IsolateJob < ApplicationJob
               :stderr_file, :metadata_file, :additional_files_archive_file
 
   def perform(submission_id)
-    puts "perform #{submission_id}"
     @submission = Submission.find(submission_id)
     submission.update(status: Status.process, started_at: DateTime.now, execution_host: ENV["HOSTNAME"])
 
@@ -34,7 +33,7 @@ class IsolateJob < ApplicationJob
       time << submission.time
       memory << submission.memory
 
-      #foo cleanup
+      cleanup
       break if submission.status != Status.ac
     end
 
@@ -53,13 +52,8 @@ class IsolateJob < ApplicationJob
   private
 
   def initialize_workdir
-
-    puts "initialize_workdir #{submission.id}"
-
     @box_id = submission.id%2147483647
     @cgroups = (!submission.enable_per_process_and_thread_time_limit || !submission.enable_per_process_and_thread_memory_limit) ? "--cg" : ""
-
-    puts "isolate #{cgroups} -b #{box_id} --init"
     @workdir = `isolate #{cgroups} -b #{box_id} --init`.chomp
     @boxdir = workdir + "/box"
     @tmpdir = workdir + "/tmp"
@@ -78,8 +72,6 @@ class IsolateJob < ApplicationJob
     File.open(stdin_file, "wb") { |f| f.write(submission.stdin) }
 
     extract_archive
-
-    puts "initialize_workdir #{submission.id} success"
   end
 
   def initialize_file(file)
@@ -87,7 +79,6 @@ class IsolateJob < ApplicationJob
   end
 
   def extract_archive
-    puts "extract_archive #{submission.id}"
     return unless submission.additional_files?
 
     File.open(additional_files_archive_file, "wb") { |f| f.write(submission.additional_files) }
@@ -114,9 +105,7 @@ class IsolateJob < ApplicationJob
 
     `#{command}`
 
-    # File.delete(additional_files_archive_file)
-
-    puts "extract_archive #{submission.id} success"
+    File.delete(additional_files_archive_file)
   end
 
   def compile
@@ -259,7 +248,7 @@ class IsolateJob < ApplicationJob
 
     `#{command}`
 
-    #foo `sudo rm #{run_script}` unless submission.is_project
+    `sudo rm #{run_script}` unless submission.is_project
   end
 
   def verify
@@ -313,8 +302,8 @@ class IsolateJob < ApplicationJob
   end
 
   def reset_metadata_file
-    #foo `sudo rm -rf #{metadata_file}`
-    #foo initialize_file(metadata_file)
+    `sudo rm -rf #{metadata_file}`
+    initialize_file(metadata_file)
   end
 
   def fix_permissions
