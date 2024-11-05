@@ -1,5 +1,5 @@
 module IsolateRunner
-  MAX_WAIT_TIME_S = 600
+  MAX_WAIT_TIME_S = 20
 
   INITIAL_WAIT_TIME_S = 2
   NEXT_WAIT_TIME_S = 1

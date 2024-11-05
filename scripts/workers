@@ -3,6 +3,7 @@
 #
 # Usage: ./scripts/workers
 #
+
 source ./scripts/load-config
 export | sudo tee /api/environment
 
