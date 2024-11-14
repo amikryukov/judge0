@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 services:
   server:
     image: amikriukov/judge0:latest
@@ -17,14 +17,10 @@ services:
 
   worker:
     image: amikriukov/judge0:latest
-    # image: judge0/judge0:1.13.1
     command: [ "./scripts/workers" ]
     volumes:
       - ./judge0-amikriukov.conf:/judge0.conf:ro
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-    environment:
-      # Enable cgroup v2
-      ENV CGROUP_V2_ENABLED: true
     privileged: true
     restart: always
     depends_on:
