@@ -1,4 +1,4 @@
-FROM amikriukov/judge0-base:latest AS production
+FROM judge0-compilers:latest AS production
 
 ENV JUDGE0_HOMEPAGE "https://judge0.com"
 LABEL homepage=$JUDGE0_HOMEPAGE
@@ -55,7 +55,7 @@ COPY . .
 ENTRYPOINT ["/api/docker-entrypoint.sh"]
 CMD ["/api/scripts/server"]
 
-RUN useradd -u 1000 -m -r judge0 && \
+RUN useradd -M judge0 && \
     echo "judge0 ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers && \
     chown judge0: /api/tmp/
 
@@ -70,11 +70,10 @@ ENV CGROUP_V2_ENABLED=true
 # Set isolate to use a specific sandbox directory, if desired
 RUN mkdir -p /var/local/lib/isolate && chmod 777 /var/local/lib/isolate
 
-USER judge0
+# USER judge0
 
-ENV JUDGE0_VERSION "1.13.1"
+ENV JUDGE0_VERSION "1.13.1-u"
 LABEL version=$JUDGE0_VERSION
-
 
 FROM production AS development
 

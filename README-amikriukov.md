@@ -1,78 +1,58 @@
+## Build an image
 
+Sources of isolate, compilers and judge0 on the same folder.
 
-
-### Log
+### build `judge0-compilers`
 
 ```bash
+cd judge0-compilers
+docker build -t judge0-compilers -f Dockerfile ../
+cd ../
 
-ssh amikriukov@130.193.58.92
-
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-echo \
- "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-
-# isolate
-git clone --depth 1 https://github.com/amikryukov/isolate.git
-cd isolate
-sudo apt-get install -y software-properties-common wget build-essential;
-sudo apt-get install -y --no-install-recommends libgmp-dev libmpfr-dev libmpc-dev docbook-xml docbook-xsl asciidoc xsltproc xmlto;
-sudo apt-get install -y gcc-9 g++-9;
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90;
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90;
-sudo apt-get install libcap-dev
-sudo apt-get install libsystemd-dev
-sudo apt-get install libsystemd-daemon-devel
-sudo apt-get install systemd-devel
-sudo apt-get install make;
-sudo apt install pkgconf;
-
-sudo make && make install
-
-sudo cp isolate.* /etc/systemd/system/
-sudo systemctl enable isolate
-sudo systemctl start isolate
-cd ..;
-
-
-# build judge0 image
-git clone --depth 1 https://github.com/amikryukov/judge0-compilers.git
-cd judge0-compilers/; 
-git fetch origin judge-0-upgrade:judge-0-upgrade; git checkout judge-0-upgrade; 
-sudo docker build -t amikriukov/judge0-base .
-cd ..;
-
-git clone --depth 1 https://github.com/amikryukov/judge0.git
-cd judge0/; 
-git fetch origin judge0-upgrade:judge0-upgrade; 
-git checkout judge0-upgrade;
-sudo docker build -t amikriukov/judge0 .
-cd ..;
-
-# save image as file
-docker save amikriukov/judge0:latest | gzip > judge0-upgraded.tar.gz
-
-exit
+# verify image creation
+docker images | grep judge0                       
 ```
 
-```bash
-scp amikriukov@130.193.58.92:/home/amikriukov/judge0-upgraded.tar.gz ./judge0-upgraded.tar.gz
-```
+Notes:
+* Root repository is used for the docker context in order to utilize isolate version from the repository itself.
+
+
+### build `judge0`
 
 ```bash
-ssh amikriukov@130.193.58.92
-
 cd judge0
+docker build -t judge0 -f Dockerfile .
+cd ..
 
-
+# verify image creation
+docker images | grep judge0  
 ```
+
+## Run judge0 locally
+
+With docker-compose
+
+```bash
+cd judge0
+docker compose -f docker-compose.yml up
+```
+
+Notes:
+* Log level and other default configs are available in `code-execution-judge0/judge0/config/environments/` folder
+
+## Possible problems
+
+There might be problems with cgroup delegation.
+
+```text
+Cannot set /sys/fs/cgroup//box-8/cgroup.procs to 2\n: No such file or directory\n
+```
+
+What we need to do, is to make sure that isolate will be able to create subgroups and it is added to cgroup.procs
+
+See details in
+https://man7.org/conf/ndctechtown2021/cgroups-v2-part-2-diving-deeper-NDC-TechTown-2021-Kerrisk.pdf
+
+For that reason, one solution (instead of `# hack for isolate`) would be to start systemd with the service from [systemd](isolate%2Fsystemd) folder within the container.
+Or, as defined at the moment - to create a cgroup during [docker-entrypoint.sh](judge0%2Fdocker-entrypoint.sh) script, and start the process of the application:
+That is preferred approach. 
